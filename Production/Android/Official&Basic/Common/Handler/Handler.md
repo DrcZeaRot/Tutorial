@@ -16,7 +16,7 @@
 >当我们启动一个APK时，ActivityManagerService会为我们的Activity创建并启动一个主线程(ActivityThread对象)
 
 
-### A.消息循环准备阶段
+### 消息循环准备阶段
 1. ActivityThread.main()
     * 创建了一个ActivityThread对象
     * Looper.prepareMainLooper()创建主线程Looper，Looper.loop()进入消息循环
@@ -33,7 +33,7 @@
 >至此，就介绍完消息循环的创建/准备阶段。该节点的主要工作可以概括为2部分内容：
 * Java层，创建Looper对象，Looper的构造函数中会创建消息队列MessageQueue的对象。MessageQueue的作用存储消息队列，用来管理消息的。
 * C++层，消息队列创建时，会调用JNI函数，初始化NativeMessageQueue对象。NativeMessageQueue则会初始化Looper对象。Looper的作用就是，当Java层的消息队列中没有消息时，就使Android应用程序主线程进入等待状态，而当Java层的消息队列中来了新的消息后，就唤醒Android应用程序的主线程来处理这个消息。
-### B.消息循环
+### 消息循环
 1. Looper.loop()
     * 尝试从mQueue获取下一条消息 queue.next()
     * queue.next()方法可能阻塞，阻塞则一直卡在这个无线循环中
@@ -74,7 +74,7 @@
 ### 总体流程简单梳理
 * 应用程序先通过Looper.prepareMainLooper()来创建消息队列。
 在创建消息队列的过程中，会创建Looper对象，MessageQueue对象，并调用JNI函数；
-Looper.loop()无线循环，尝试从MessageQueue中获取消息，没有新消息则调用JNI，通过管道来进入空闲等待状态。
+Looper.loop()无限循环，尝试从MessageQueue中获取消息，没有新消息则调用JNI，通过管道来进入空闲等待状态。
 * 当应用程序调用sendMessage()或其他类似接口发送消息时，消息会被添加到消息队列；
 若需要唤醒，则调用JNI函数，唤醒管道上处于空闲状态的主线程。
 * 管道上的空闲状态的主线程被唤醒之后，就会读出消息队列的消息，然后通过dispatchMessage()来分发处理。
@@ -82,7 +82,7 @@ Looper.loop()无线循环，尝试从MessageQueue中获取消息，没有新消�
 
 [Handler常见使用](HandlerSample.md)
 
-#### C.参考
+#### 参考
 * [Android消息机制架构和源码解析 by wangkuiwu](http://wangkuiwu.github.io/2014/08/26/MessageQueue/)
 * [Android消息机制，从Java层到Native层剖析 by 溜了溜了](https://zhuanlan.zhihu.com/p/29929031)
 * [Android消息机制 by gityuan](http://gityuan.com/2015/12/26/handler-message-framework/)
