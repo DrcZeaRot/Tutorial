@@ -4,22 +4,26 @@ import com.xcstasy.tutorial.datastructure.Node
 
 class LinkedStack<E> : Stack<E> {
 
-    private var top: Node<E>? = null
+    private var top: Node<E>? = Node()
 
-    private var size: Int = 0
+    private var elementCount: Int = 0
 
-    init {
-        top = Node()
-    }
-
-    override fun size(): Int = size
+    override fun size(): Int = elementCount
 
     override fun isEmpty(): Boolean = top == null || top?.data == null
 
     override fun push(data: E) {
-
-        size++
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        top.also {
+            when {
+                it == null -> top = Node(data)
+                it.data == null -> it.data = data
+                else -> {
+                    val pre = Node(data, pre = top)
+                    top = pre
+                }
+            }
+        }
+        elementCount++
     }
 
     override fun pop(): E? {
@@ -28,8 +32,8 @@ class LinkedStack<E> : Stack<E> {
         } else {
             top?.let {
                 val data = it.data
-                top = it.next
-                size--
+                top = it.pre
+                elementCount--
                 data
             }
         }
@@ -38,7 +42,13 @@ class LinkedStack<E> : Stack<E> {
     override fun peek(): E? = top?.data
 
     override fun search(data: E): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var target: Node<E>? = top
+        for (i in 0 until elementCount) {
+            if (data == target?.data) {
+                return i
+            } else target = target?.pre
+        }
+        return -1
     }
 
 }

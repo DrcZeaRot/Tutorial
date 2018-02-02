@@ -18,6 +18,7 @@ fun main(args: Array<String>) {
     stack.push("55")
     stack.push("22")
     val size = stack.size()
+    "Result : ${stack.search("44")}".logW()
     for(i in 0 until size){
         stack.pop()?.let {
             "Index: $i Value:$it".logW()

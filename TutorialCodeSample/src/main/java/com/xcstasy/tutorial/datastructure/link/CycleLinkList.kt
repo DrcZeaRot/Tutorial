@@ -68,11 +68,11 @@ class CycleLinkList<E> : LinkList<E> {
     }
 
     override fun getFirst(): E? {
-        return get(0)
+        return mHead.next?.data
     }
 
     override fun getLast(): E? {
-        return get(mCount - 1)
+        return mHead.pre?.data
     }
 
     override fun addFirst(data: E) {

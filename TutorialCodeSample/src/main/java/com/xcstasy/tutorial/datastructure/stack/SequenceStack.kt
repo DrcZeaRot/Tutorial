@@ -25,14 +25,16 @@ class SequenceStack<E> : Stack<E> {
 
     override fun push(data: E) {
         if (capacity == elementCount) {
-            ensureSize()
+            ensureSize(capacity + capacityIncrement)
         }
         elements[elementCount++] = data
     }
 
-    private fun ensureSize() {
-        val newElements = arrayOfNulls<Any>(capacity + capacityIncrement)
-        System.arraycopy(elements, 0, newElements, 0, capacity)
+    private fun ensureSize(capacity: Int) {
+        if (capacity <= elementCount) return
+        val newElements = arrayOfNulls<Any>(capacity)
+        val oleElements = elements
+        System.arraycopy(oleElements, 0, newElements, 0, this.capacity)
         elements = newElements as Array<E>
     }
 
@@ -52,8 +54,8 @@ class SequenceStack<E> : Stack<E> {
     }
 
     override fun search(data: E): Int {
-        for (i in 0 until elements.size) {
-            if (elements[i] == data) return i
+        for (i in elements.size - 1 downTo 0) {
+            if (elements[i] == data) return size() - i - 1
         }
         return -1
     }
