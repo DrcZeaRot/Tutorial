@@ -1,10 +1,7 @@
 package com.xcstasy.tutorial.algorithm.sort
 
-import com.xcstasy.tutorial.util.logW
-import kotlin.system.measureNanoTime
-
-class DoubleBubbleSort {
-    fun execute(source: IntArray) {
+class BubbleSortDouble : IntSort {
+    override fun execute(source: IntArray) {
         var temp: Int
         var index = 0
         var left = 0
@@ -30,11 +27,4 @@ class DoubleBubbleSort {
             index++
         }
     }
-}
-
-fun main(args: Array<String>) {
-    val sort = DoubleBubbleSort()
-    val array = intArrayOf(80, 60, 89, 84, 65, 73, 20, 30, 43)
-    val time = measureNanoTime { sort.execute(array) }
-    "Result:[$time] ${array.joinToString()}".logW()
 }

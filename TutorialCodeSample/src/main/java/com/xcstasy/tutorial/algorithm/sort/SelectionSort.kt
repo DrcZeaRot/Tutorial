@@ -3,8 +3,8 @@ package com.xcstasy.tutorial.algorithm.sort
 import com.xcstasy.tutorial.util.logW
 import kotlin.system.measureNanoTime
 
-class SelectionSort {
-    fun execute(source: IntArray) {
+class SelectionSort :IntSort{
+    override fun execute(source: IntArray) {
         var min: Int
         var temp: Int
         val size = source.size
@@ -21,11 +21,4 @@ class SelectionSort {
 
         }
     }
-}
-
-fun main(args: Array<String>) {
-    val sort = SelectionSort()
-    val array = intArrayOf(80, 60, 89, 84, 65, 73, 20, 30, 43)
-    val time = measureNanoTime { sort.execute(array) }
-    "Result:[$time] ${array.joinToString()}".logW()
 }
