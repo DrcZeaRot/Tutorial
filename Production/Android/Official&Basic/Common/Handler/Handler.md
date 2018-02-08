@@ -30,7 +30,7 @@
 4. NativeMessageQueue实例化
     * 实例化时，创建一个Looper(C++)对象指向mLooper，调用Looper::setForThread(mLooper)
 5. Looper(C++)实例化(见上述Pipe管道)
->至此，就介绍完消息循环的创建/准备阶段。该节点的主要工作可以概括为2部分内容：
+>至此，就介绍完消息循环的创建/准备阶段。该结点的主要工作可以概括为2部分内容：
 * Java层，创建Looper对象，Looper的构造函数中会创建消息队列MessageQueue的对象。MessageQueue的作用存储消息队列，用来管理消息的。
 * C++层，消息队列创建时，会调用JNI函数，初始化NativeMessageQueue对象。NativeMessageQueue则会初始化Looper对象。Looper的作用就是，当Java层的消息队列中没有消息时，就使Android应用程序主线程进入等待状态，而当Java层的消息队列中来了新的消息后，就唤醒Android应用程序的主线程来处理这个消息。
 ### 消息循环
