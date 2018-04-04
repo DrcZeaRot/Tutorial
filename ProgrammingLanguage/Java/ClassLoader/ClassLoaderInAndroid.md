@@ -46,7 +46,7 @@
 4. classloader：是指该装载器的父装载器,一般为当前执行类的装载器，例如在Android中以context.getClassLoader()作为父装载器。
 
 ##### BaseDexClassLoader加载Class过程
-1. BaseDexClassLoader中有个pathList对象
+1. BaseDexClassLoader中有个pathList(DexPathList类型)对象
 2. pathList中包含一个DexFile的数组dexElements
 3. dexPath传入的原始dex(.apk,.zip,.jar等)文件在optimizedDirectory文件夹中生成相应的优化后的odex文件
 4. dexElements数组就是这些odex文件的集合
@@ -66,3 +66,5 @@
 [Android动态加载之ClassLoader详解](https://www.jianshu.com/p/a620e368389a)
 
 [Android解析ClassLoader（二）Android中的ClassLoader](http://blog.csdn.net/itachi85/article/details/78276837)
+
+[Android类装载机制(DexPathList inside)](https://juejin.im/post/5abc546a6fb9a028c675c691)
