@@ -18,10 +18,22 @@
 * [对象的内存布局](ObjectInfo/ObjectMemoryLayout.md)
 * [对象的访问定位](ObjectInfo/ObjectAccessLocal.md)
 
-##### GC
+##### 垃圾收集器与内存分配策略
 
+* JVM如何判断对象死亡：
+    * [引用计数算法](GC/ReferenceCounting.md)
+    * [可达性分析算法](GC/ReachabilityAnalysis.md)
+    * [引用的细节](GC/Reference.md)
+    * [生存还是死亡](GC/Finalize.md)
+* [垃圾收集算法](GC/GarbageCollector.md)
+* [内存分配与回收策略](GC/MemoryStrategy.md)
 
+##### 类文件结构
 
+##### 类的加载
+
+* [类加载器与双亲委托](ClassLoader/ClassLoader.md)
+* [Android的类加载器](ClassLoader/ClassLoaderInAndroid.md)
 
 #### 参考
 
