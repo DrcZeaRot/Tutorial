@@ -30,6 +30,15 @@
 
 ##### 类文件结构
 
+* [简介](ClassFileStructure/CFS_Intro.md)
+* [魔数与class文件的版本](ClassFileStructure/CFS_MagicNumber&Version.md)
+* [常量池](ClassFileStructure/CFS_ConstantPool.md)
+* [访问标志](ClassFileStructure/CFS_AccessFlags.md)
+* [类索引、父类索引与接口索引集合](ClassFileStructure/CFS_IndexList.md)
+* [字段表集合](ClassFileStructure/CFS_FieldList.md)
+* [方法表集合](ClassFileStructure/CFS_MethodList.md)
+* [属性表集合](ClassFileStructure/CFS_AttributeList.md)
+
 ##### 类的加载
 
 * [类加载器与双亲委托](ClassLoader/ClassLoader.md)
