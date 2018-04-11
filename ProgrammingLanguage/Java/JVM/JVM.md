@@ -39,10 +39,14 @@
 * [方法表集合](ClassFileStructure/CFS_MethodList.md)
 * [属性表集合](ClassFileStructure/CFS_AttributeList.md)
 
-##### 类的加载
+##### 虚拟机类加载机制
 
-* [类加载器与双亲委托](ClassLoader/ClassLoader.md)
-* [Android的类加载器](ClassLoader/ClassLoaderInAndroid.md)
+* [类加载简介](ClassLoading/ClassLoadingIntro.md)
+* [类加载的时机](ClassLoading/ClassLoadingTiming.md)
+* [类加载的过程](ClassLoading/ClassLoadingProcess.md)
+* 类加载器：
+    1. [类加载器与双亲委托](ClassLoading/ClassLoader.md)
+    2. [Android的类加载器](ClassLoading/ClassLoaderInAndroid.md)
 
 #### 参考
 
