@@ -48,6 +48,12 @@
     1. [类加载器与双亲委托](ClassLoading/ClassLoader.md)
     2. [Android的类加载器](ClassLoading/ClassLoaderInAndroid.md)
 
+##### 虚拟机字节码执行引擎
+
+* 方法调用
+    * [方法解析](ByteCodeEngine/MethodResolution.md)
+    * [方法分派](ByteCodeEngine/MethodDispatch.md)
+
 #### 参考
 
 [深入理解Java虚拟机：JVM高级特性与最佳实践.pdf]()
