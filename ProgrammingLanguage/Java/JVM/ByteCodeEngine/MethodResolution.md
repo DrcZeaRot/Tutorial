@@ -46,7 +46,7 @@ Java语言中，符合"编译期可知，运行期不可变"这个要求的方�
 
 ##### 虚方法、非虚方法
 
-只要能被invokestatic和invokespecial指令调用的方法：
+非虚方法：只要能被invokestatic和invokespecial指令调用的方法：
 * 都可以在解析阶段中，确定唯一的调用版本
 * 符合这个条件的有4种：
     1. 静态方法

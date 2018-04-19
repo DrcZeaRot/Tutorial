@@ -61,7 +61,7 @@ Java虚拟机规范中，并没有进行强制约束，这点可交给虚拟机�
     * 对于Sun HotSpot虚拟机，可以通过-XX:+TraceClassLoading观察到：此操作会导致子类的加载
 2. 通过数组定义来引用类，不会触发此类的初始化：[示例代码](../../../../TutorialCodeSample/src/main/java/com/xcstasy/tutorial/jvm/classloading/NotInitDefiningArray.java)
     * 对于SuperClass类，此示例代码没有输出"SuperClass init"，说明：没有触发此类的初始化阶段
-    * 但这段代码里，出发了另一个名为"[Lxxx.xxx.xxxSuperClass"类的初始化("["代表数组，"L"代表对象，这里初始化了一个数组对象)
+    * 但这段代码里，触发了另一个名为"[Lxxx.xxx.xxxSuperClass"类的初始化("["代表数组，"L"代表对象，这里初始化了一个数组对象)
         * 对于用户代码来说，这并不是一个合法的类名，它是一个由虚拟机自动生成、直接继承与java.lang.Object的子类
         * 创建动作由字节码指令newarray触发
     * 这个类，代表了一个元素类型为SuperClass的一维数组，数组中应有的属性和方法(用户可以直接使用的只有被修饰为public的length属性和clone()方法)都实现在这个类里

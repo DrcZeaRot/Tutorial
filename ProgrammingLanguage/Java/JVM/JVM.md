@@ -54,6 +54,17 @@
     * [方法解析](ByteCodeEngine/MethodResolution.md)
     * [方法分派](ByteCodeEngine/MethodDispatch.md)
 
+##### 高效并发
+
+* [硬件的效率与一致性](EfficientConcurrency/HardwareEfficiency&Uniformity.md)
+* Java内存模型与线程
+    1. [Java内存模型](EfficientConcurrency/JavaMemoryModel.md)
+    2. [Java与线程](EfficientConcurrency/JavaThreading.md)
+* 线程安全与锁优化
+    1. [线程安全](EfficientConcurrency/ThreadSafety.md)
+    2. [锁优化](EfficientConcurrency/LockOptimization.md)
+
+
 #### 参考
 
 [深入理解Java虚拟机：JVM高级特性与最佳实践.pdf]()
