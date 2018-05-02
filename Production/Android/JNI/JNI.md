@@ -1,7 +1,7 @@
 ### JNI
 
-[JNI基础扫盲](JNI_Intro.md)
-[静态注册&动态注册](JNI_Register.md)
+* [JNI基础扫盲](JNI_Intro.md)
+* [静态注册&动态注册](JNI_Register.md)
 
 ##### 参考
 
