@@ -1,5 +1,48 @@
 ### Service工作过程
 
+#### 从结论说
+
+startService：
+1. ContextWrapper::startService => ContextImpl::startService
+	* 内部跳转 ContextImpl::startServiceCommon => AMS::startService
+2. AMS::startService
+	* 桥接：ActiveServices::startServiceLocked
+	* 多次内部跳转，到达ActiveServices::realStartServiceLocked
+	* 进行IPC调用：app.thread.scheduleCreateService
+3. ApplicationThread::scheduleCreateService
+	* 发消息、处理之后，跳转ActivityThread::handleCreateService
+4. ActivityThread::handleCreateService
+	1. 通过LoadedApk.getClassLoader的类加载器，创建Service实例
+	2. 创建ContextImpl实例、获取Application实例
+	3. 调用Service::attach完成初始化
+	4. 然后直接调用Service::onCreate
+	5. 并将Service放入mService容器中。
+
+bindService：
+1. ContextWrapper::bindService => ContextImpl::bindService
+	* 内部跳转ContextImpl::bindServiceCommon
+	* 通过LoadedApk::getServiceDispatcher，包装ServiceConnection为IServiceConnection
+		* 实现类是：LoadedApk.ServiceDispatcher.InnerConnection
+		* ServiceConnection会被保存在ServiceDispatcher中
+	* 调用AMS::bindService，传递IServiceConnection这个Binder
+2. AMS::bindService
+	* 桥接：ActiveServices::bindServiceLocked
+	* 多次内部跳转，过程中调用ActiveServices::realStartServiceLocked，进行Service的创建于onCreate回调
+	* 还会调用ActiveServices::requestServiceBindingLocked，进行Service的绑定
+	* 进行IPC调用：app.thread.scheduleBindService
+3. ApplicationThread::scheduleBindService
+	* 发消息、处理之后，跳转ActivityThread::handleBindService
+4. ActivityThread::handleBindService
+	1. 从Service容器mServices中，通过IBinder的token获得待bind的Service实例(在startService过程中添加到容器里)
+	2. 如果第一次绑定，直接调用Service::onBind方法
+	3. 并接下来通过AMS::publishService，通知ServiceConnection::onServiceConnection
+5. AMS::publishService
+	* 桥接：ActiveServices::publishServiceLocked
+	* 调用IServiceConnection::connected方法
+	* 实际是调用LoadedApk.ServiceDispatcher.InnerConnection::connected
+	* 跳转调用ServiceDispatcher::connected => ServiceDispatcher::doConnected
+	* 内部调用之前保存的ServiceConnection::onServiceConnection
+
 #### Start Service
 
 从ContextWrapper::startService到IApplication::scheduleCreateService：
@@ -421,4 +464,4 @@ ApplicationThread对scheduleBindService的实现：
             }
         }
         ```
-        * 这是一个标准的AIDL实现
+        * 由于构建ServiceDispatcher时，已经将ServiceConnection的引用保存，此处直接调用ServiceConnection::onServiceConnected

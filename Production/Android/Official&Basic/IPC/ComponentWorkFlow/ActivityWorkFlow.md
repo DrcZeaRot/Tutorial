@@ -6,6 +6,36 @@ context::startActivity/startActivityForResult方法，究竟发生了什么：
 startActivity(Intent(context,XxxActivity::class.java))
 ```
 
+#### 从结论说
+
+1. Activity::startActivity => Instrumentation::execStartActivity => AMS::startActivity
+2. 内部多次跳转，到达： AMS::startActivityAsUser
+    1. 第一次桥接：跳转ActivityStarter::startActivityMayWait
+        * 内部多次跳转，到达ActivityStarter::startActivityUnchecked
+    2. 第二次桥接：跳转ActivityStackSupervisor::resumeFocusedStackTopActivityLocked
+    3. 第三次桥接：ActivityStack::resumeTopActivityUncheckedLocked
+        * 内部跳转，到达ActivityStack::resumeTopActivityInnerLocked
+        * 此处先尝试pause当前Activity
+        * 再尝试resume目标Activity，如果无法resume，需要重新启动目标Activity
+    3. 反向桥接(如果需要重新启动)：ActivityStackSupervisor::startSpecificActivityLocked
+        * 内部跳转：ActivityStackSupervisor::realStartActivityLocked
+    4. 达到realXxxLocked时，就是真正的IPC的时刻：app.thread.scheduleLaunchActivity
+3. ApplicationThread::scheduleLaunchActivity
+    * 发消息给Handler mH => handleMessage进行case分发 => ActivityThread::handleLaunchActivity
+4. ActivityThread::handleLaunchActivity
+    1. performLaunchActivity创建Activity实例：
+    	1. 从ActivityClientRecord获取组件信息
+    	2. 创建ContextImpl
+    	3. 通过ContextImpl::getClassLoader的类加载器，创建Activity实例
+    	4. 获取Application实例
+    	5. 回调Activity::attach，完成初始化
+    	    * Activity::attach，调用ContextWrapper::attachBaseContext，将ContextImpl赋值给mBase。
+    	6. Instrumentation::callActivityOnCreate回调Activity::onCreate
+    	7. Activity::performStart回调 => Instrumentation::callActivityOnStart(this) => Activity::onStart
+    2. performResumeActivity回调Activity的onResume
+    	* Activity::performResume => Instrumentation::callActivityOnResume(this) => Activity::onResume
+5. 至此，Activity已经进入Resume状态
+
 ##### 从startActivity到IApplicationThread::scheduleLaunchActivity：
 
 0. 入口方法：
@@ -222,7 +252,7 @@ ApplicationThread中相关方法简析：
             ```
             ContextImpl appContext = createBaseContextForActivity(r);
             ```
-        2. 创建Activity实例：
+        3. 创建Activity实例：
             ```
             Activity activity = null;
             try {
@@ -232,13 +262,13 @@ ApplicationThread中相关方法简析：
             }
             ```
             * 通过Instrumentation::newActivity创建Activity实例
-        3. 获取Application实例：
+        4. 获取Application实例：
             ```
             LoadedApk::makeApplication
             Application app = r.packageInfo.makeApplication(false, mInstrumentation);
             ```
             * 通过Instrumentation::newApplication创建单例。
-        4. 回调Activity::attach，完成初始化：
+        5. 回调Activity::attach，完成初始化：
             ```
             activity.attach(appContext, this, getInstrumentation(), r.token,
                     r.ident, app, r.intent, r.activityInfo, title, r.parent,
@@ -246,7 +276,7 @@ ApplicationThread中相关方法简析：
                     r.referrer, r.voiceInteractor, window, r.configCallback);
             ```
             * Activity::attach，调用ContextWrapper::attachBaseContext，将ContextImpl赋值给mBase。
-        5. Instrumentation::callActivityOnCreate回调Activity的onCreate方法。
-        6. Activity::performStart回调 => Instrumentation::callActivityOnStart(this) => Activity::onStart
+        6. Instrumentation::callActivityOnCreate回调Activity的onCreate方法。
+        7. Activity::performStart回调 => Instrumentation::callActivityOnStart(this) => Activity::onStart
     * performResumeActivity回调Activity的onResume。
         * Activity::performResume => Instrumentation::callActivityOnResume(this) => Activity::onResume
