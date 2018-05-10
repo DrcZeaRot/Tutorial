@@ -9,6 +9,7 @@ startService：
 	* 桥接：ActiveServices::startServiceLocked
 	* 多次内部跳转，到达ActiveServices::realStartServiceLocked
 	* 进行IPC调用：app.thread.scheduleCreateService
+	* 之后会调用sendServiceArgsLocked => 进行IPC调用r.app.thread.scheduleServiceArgs(r, slice);
 3. ApplicationThread::scheduleCreateService
 	* 发消息、处理之后，跳转ActivityThread::handleCreateService
 4. ActivityThread::handleCreateService
@@ -17,6 +18,8 @@ startService：
 	3. 调用Service::attach完成初始化
 	4. 然后直接调用Service::onCreate
 	5. 并将Service放入mService容器中。
+5. ApplicationThread::scheduleServiceArgs => ActivityThread::handleServiceArgs
+    * 调用Service::onStartCommand
 
 bindService：
 1. ContextWrapper::bindService => ContextImpl::bindService

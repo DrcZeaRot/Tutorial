@@ -18,7 +18,8 @@ startActivity(Intent(context,XxxActivity::class.java))
         * 此处先尝试pause当前Activity
         * 再尝试resume目标Activity，如果无法resume，需要重新启动目标Activity
     3. 反向桥接(如果需要重新启动)：ActivityStackSupervisor::startSpecificActivityLocked
-        * 内部跳转：ActivityStackSupervisor::realStartActivityLocked
+        1. 进程已存在则内部跳转：ActivityStackSupervisor::realStartActivityLocked
+        2. 进程不存在则跳转[Android进程创建流程](../Process/ProcessCreation/SystemServerProcess.md)
     4. 达到realXxxLocked时，就是真正的IPC的时刻：app.thread.scheduleLaunchActivity
 3. ApplicationThread::scheduleLaunchActivity
     * 发消息给Handler mH => handleMessage进行case分发 => ActivityThread::handleLaunchActivity
@@ -157,21 +158,23 @@ startActivity(Intent(context,XxxActivity::class.java))
                     userLeaving, prev.configChangeFlags, pauseImmediately);
             ```
         * 这里会尝试resume目标Activity，如果无法resume，则代表需要重新启动这个Activity
-    * 重新启动：桥接回ActivityStackSupervisor::startSpecificActivityLocked(2633/2663) => realStartActivityLocked
-        ```
-        void startSpecificActivityLocked(ActivityRecord r,
-                    boolean andResume, boolean checkConfig) {
-            ...
-            if (app != null && app.thread != null) {
-                try {
-                    ...
-                    realStartActivityLocked(r, app, andResume, checkConfig);
-                    return;
-                } catch (RemoteException e) { ... }
+    * 重新启动：桥接回ActivityStackSupervisor::startSpecificActivityLocked(2633/2663)
+        * 如果进程已存在，则：ActivityStackSupervisor::realStartActivityLocked
+            ```
+            void startSpecificActivityLocked(ActivityRecord r,
+                        boolean andResume, boolean checkConfig) {
+                ...
+                if (app != null && app.thread != null) {
+                    try {
+                        ...
+                        realStartActivityLocked(r, app, andResume, checkConfig);
+                        return;
+                    } catch (RemoteException e) { ... }
+                }
+                ...
             }
-            ...
-        }
-        ```
+            ```
+        * 如果进程还不存在，此处跳转[Android进程创建流程](../Process/ProcessCreation/SystemServerProcess.md)
 4. ActivityStackSupervisor::realStartActivityLocked:
     ```
      app.thread.scheduleLaunchActivity(new Intent(r.intent), r.appToken,

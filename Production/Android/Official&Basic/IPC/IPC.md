@@ -26,6 +26,6 @@ IPC：Inter-Process-Communication
     1. Bundle：四大组件通过Intent通信，Intent可以携带Bundle。Fragment也可以通过Bundle通信。
     2. 文件共享：LocalFile在没有并发问题时，也是一种比较理想的通信方式。
     3. Messenger：基础的AIDL/Handler的封装。
-    4. AIDL：功能最全面的IPC
+    4. [AIDL](AIDL/AIDL.md)：功能最全面的IPC
     5. ContentProvider：SQL的封装
     6. Socket：最基础的网络通信。

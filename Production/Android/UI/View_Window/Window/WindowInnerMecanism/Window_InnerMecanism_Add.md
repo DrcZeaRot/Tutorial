@@ -1,5 +1,6 @@
 ### Window的添加过程
 
+###### 简介
 此过程通过WindowManager::addView()方法实现：
 * WindowManagerImpl类实现了WindowManager接口
 * 其中addView实现的方法体为：
@@ -12,6 +13,21 @@
     ```
 * 所有操作委托给WindowManagerGlobal处理。
 * 剩余2大操作：updateViewLayout、removeView也采取这种<桥接模式>
+
+##### 流程总结
+
+WindowManagerImpl::addView，桥接给WindowManagerGlobal::addView，此方法分以下几步：
+1. 检查参数是否合法；如果是子Window(parentWindow != null)，则需要调整一些布局参数
+2. 创建ViewRootImpl实例，并将View、ViewImpl、LayoutParams添加到成员变量容器中。
+3. 通过ViewRootImpl::setView方法，更新界面、并完成Window的添加过程。
+	1. View绘制相关
+		1. 上述方法调用ViewRootImpl::requestLayout => ViewRootImpl::scheduleTraversals
+		2. 上述方法发送出一个ViewRootImpl.TraversalRunnable实例
+		3. 其run方法中调用ViewRootImpl::doTraversal => ViewRootImpl::performTraversals，开始View的绘制流程。
+	2. 添加Window，此处发起IPC
+		1. 通过IWindowSession::addToDisplay方法，添加Window
+		2. 实现类是com.android.server.wm.Session
+		3. Session::addToDisplay调用WindowManagerService::addWindow
 
 #### WindowManagerGlobal::addView的实现分为以下3步：
 

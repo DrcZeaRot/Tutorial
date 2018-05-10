@@ -1,6 +1,29 @@
 ### Activity的Window创建
 
-此处需要了解Activity启动过程，[具体在此]()
+此处需要了解Activity启动过程，[具体在此](../../../../Official&Basic/IPC/ComponentWorkFlow/ActivityWorkFlow.md)
+
+##### 流程总结
+
+0. startActivity的前戏：
+	1. ActivityThread::performLaunchActivity => Activity::attach
+	2. 上述方法中，创建PhoneWindow实例作为Activity的mWindow
+1. setContentView：将mWindow与Activity视图关联
+	* 桥接至PhoneWindow::setContentView
+	1. 首先如果没有DecorView，通过installDecor创建DecorView，并将其与PhoneWindow关联
+		* DecorView是一个FrameLayout，Activity的顶级View
+		* 内部一定包含一个Content，id为：android.R.id.content
+		* 通过generateLayout，将对应主题、Api版本的LayoutRes，加载到DecorView中
+		* 将DecorView中Content部分，作为PhoneWindow的mContentParent。
+	2. 将LayoutRes添加到DecorView的mContentParent中。
+	3. 回调Activity的onContentChanged方法，通知Activity视图改变
+2. 上述PhoneWindow::setContentView的3个步骤之后
+	* DecorView已经被创建、初始化完毕，Activity的LayoutRes成功加载到mContentParent中。
+	* 但此时DecorView还没有被WindowManager添加到Window中。
+	* 需要等到ActivityThread::handleResumeActivity方法
+		1. 调用Activity::onResume => Activity::makeVisible方法
+		2. makeVisible方法中，会调用WindowManager::addView，添加View到Window中。
+
+#### 具体流程
 
 下面我们挑简要流程讲解：
 1. ActivityThread::performLaunchActivity:

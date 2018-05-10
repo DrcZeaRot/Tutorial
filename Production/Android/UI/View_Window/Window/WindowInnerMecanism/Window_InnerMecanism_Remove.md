@@ -1,5 +1,23 @@
 ### Window的删除过程
 
+##### 流程总结
+
+WindowManagerImpl::removeView，桥接给WindowManagerGlobal::removeView，此方法分以下几步：
+1. 首先通过findViewLocked，查找待删除的View索引index
+2. 找到之后，调用removeViewLocked进行删除，实际是通过ViewRootImpl完成删除
+	* ViewRootImpl::die(boolean immediate)，参数分别对应异步、同步删除；
+	1. 同步删除，直接调用ViewRootImpl::doDie，并返回false
+	2. 异步删除，发消息给Handler，就直接返回true。在Handler的回调会调用doDie方法
+		* 返回值是false的时候，在removeViewLocked方法中，会将View添加到mDyingViews容器中(removeView方法没有完成删除的View列表)
+3. View真正被删除：doDie方法内部调用的dispatchDetachedFromWindow方法，才是真正删除View的逻辑
+	* 此方法的效果：
+	1. 垃圾回收相关工作：清除数据和消息、移除回调
+	2. 通过Session::remove方法删除Window，桥接给WindowManagerService::removeWindow
+	3. 调用View::dispatchDetachedFromWindow回调
+		* 内部会调用View::onDetachedFromWindow、View::onDetachedFromWindowInternal
+	4. 调用WindowManagerGlobal::doRemoveView方法，刷新数据
+		* 将被移除的Window所相关的ViewRootImpl、View、LayoutParams、DyingViews移除容器。
+
 #### WindowManagerGlobal::removeView():
 完整方法：
 ```
@@ -94,4 +112,4 @@ public void removeView(View view, boolean immediate/*是否立即删除*/) {
             * 内部调用View::onDetachedFromWindow、View::onDetachedFromWindowInternal
         4. 调用WindowManagerGlobal::doRemoveView方法，刷新数据
             * 包括：mRoots、mParams、mDyingViews
-            * 需要将当前Window锁关联的这3个对象，移除列表
+            * 需要将当前Window所关联的这3个对象，移除列表

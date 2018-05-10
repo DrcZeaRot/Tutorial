@@ -12,7 +12,7 @@
 * Android中所有的视图，都是通过Window来呈现的
     * Activity、Dialog、Toast的视图，都是附加在Window上的
     * 实际上，Window是View的直接管理者
-    * View的时间分发机制中，时间由Window传递给DecorView，再由DecorView传递给具体的View
+    * View的事件分发机制中，时间由Window传递给DecorView，再由DecorView传递给具体的View
     * Activity::setContentView，底层也是通过Window来完成
 
 ##### Window和WindowManager
