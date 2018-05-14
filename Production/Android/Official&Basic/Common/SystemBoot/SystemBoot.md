@@ -8,7 +8,7 @@
 
 ![启动概述图](img/AndroidBooting.jpg)
 
-##### 1.init进程
+#### 1.init进程
 ```
 init是Linux系统中，用户空间的第一个线程(pid=1)
 Kernel启动后，会调用/system/core/init/Init.cpp的main()方法
@@ -35,7 +35,7 @@ Kernel启动后，会调用/system/core/init/Init.cpp的main()方法
         * 根据是否是oneshot，决定：重启子进程 或 放弃启动
         * 缺省模式oneshot=false，因此：Zygote一旦被杀死，就会再次由init进程拉起。
 
-##### 2.Zygote进程
+#### 2.Zygote进程
 ```
 当Zygote进程启动后, 便会执行到frameworks/base/cmds/app_process/App_main.cpp文件的main()方法
 ```
@@ -74,7 +74,7 @@ Kernel启动后，会调用/system/core/init/Init.cpp的main()方法
 2. 创建完system_server进程之后，Zygote功成身退，调用runSelectLoop，随时待命
 3. 当接收到创建新进程的请求时，唤醒并执行相应工作
 
-##### 3.system_server进程
+#### 3.system_server进程
 1. ZygoteInit::handleSystemServerProcess
     1. 设置当前进程名为"system_server"
     2. ZygoteInit::performSystemServerDexOpt：执行dex优化操作(比如services.jar)
@@ -146,7 +146,7 @@ Kernel启动后，会调用/system/core/init/Init.cpp的main()方法
     4. startHomeActivityLocked：启动homeActivity
     5. mStackSupervisor.resumeFocusedStackTopActivityLocked()：恢复栈顶Activity
 
-##### 4.App进程
+#### 4.App进程
 
 * 对于普通App进程，与system_server进程启动过程类似
 * 不同是：App进程向system_server进程发消息，由system_server向Zygote发出创建请求

@@ -16,6 +16,7 @@ startActivity(Intent(context,XxxActivity::class.java))
     3. 第三次桥接：ActivityStack::resumeTopActivityUncheckedLocked
         * 内部跳转，到达ActivityStack::resumeTopActivityInnerLocked
         * 此处先尝试pause当前Activity
+        * 如果有newIntent，会ApplicationThread::scheduleNewIntent处理newIntent
         * 再尝试resume目标Activity，如果无法resume，需要重新启动目标Activity
     3. 反向桥接(如果需要重新启动)：ActivityStackSupervisor::startSpecificActivityLocked
         1. 进程已存在则内部跳转：ActivityStackSupervisor::realStartActivityLocked

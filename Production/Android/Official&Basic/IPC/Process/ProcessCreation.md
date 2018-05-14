@@ -47,6 +47,10 @@
 * [Zygote创建进程](ProcessCreation/ZygoteProcess.md)
 * [新进程的运行](ProcessCreation/NewProcess.md)
 
+#### 总结
+
+![进程创建流程图](img/ProcessCreate.jpg)
+
 ##### 参考
 
 [理解Android进程创建流程 by Gityuan](http://gityuan.com/2016/03/26/app-process-create/)
