@@ -39,10 +39,23 @@
     * queue.next()方法可能阻塞，阻塞则一直卡在这个无线循环中
     * 如果下一条消息为空，退出loop循环、否则msg.target.dispatchMessage(msg)分发消息
 2. MessageQueue.next()
-    * 调用nativePollOnce()进入C++层
-    * 一路压栈 来到Looper::pollInner()，通过epoll_await()，开始等待Pipe的IO事件
-    * 如果Pipe上有IO事件发生(有消息待处理)，调用Looper::awoken()取出消息。
-    * awoken()只是将Pipe中的内容都读取出来，通过Pipe的读写来改变主线程的等待/唤醒状态
+    * 进行一些简单的参数初始化之后，就进入无限循环
+    * 循环中调用nativePollOnce()进入C++层，此方法接收的参数中，有一个是<下一次需要唤醒的时机>(nextPollTimeoutMillis)
+        * 这个nextPollTimeoutMillis第一次进入循环时是0
+        1. 一路压栈 来到Looper::pollInner()，通过epoll_await()，开始等待Pipe的IO事件
+        2. 如果Pipe上有IO事件发生(有消息待处理)，调用Looper::awoken()取出消息。
+        3. awoken()只是将Pipe中的内容都读取出来，通过Pipe的读写来改变主线程的等待/唤醒状态
+    * 关于msg的定时问题：
+        1. 所有消息在被发送给消息队列之后，按照绝对时间顺序排好
+        2. 假如：最新的一条消息被读到之后，发现目前还不需要执行(假设要在60s之后执行)
+            1. 可以肯定的是：如果没有新的消息被发送，则未来60s不需要处理消息
+            2. 此时，由于next是在Looper::loop的无限循环中，
+                * 会记录最近一次消息的时间nextPollTimeoutMillis
+                * 将mBlock成员设置为true
+                * 并continue，继续循环
+            3. 此时会再调用nativePollOnce(ptr,nextPollTimeoutMillis),也就是在这段间隔之后再尝试唤醒
+            4. 如果没有新的消息，则线程会进入空闲等待状态
+            5. 如果没等到nextPollTimeoutMillis这段时间，有新的消息发送了，则唤醒线程，继续处理消息。
 >至此，"消息循环"部分就介绍完毕了！
 ### 消息发送
 1. ActivityThread.ApplicationThread.scheduleLaunchActivity()
@@ -55,7 +68,10 @@
 3. MessageQueue.enqueueMessage()
     1. 将Message按照绝对时间顺序插入到合适位置
     2. 消息队列为空：插入只考虑新的一条消息，此时主线程为空闲等待状态，调用nativeWake()唤醒它
-    3. 消息队列不为空：插入要对整个队列进行移动，但不需要对线程进行唤醒
+    3. 消息队列不为空：插入要对整个队列进行移动
+        * 还会判断mBlock以及一些相关的flag，来确定needWake值
+        * 如果在新消息发送之前，MessageQueue判断目前一段时间没有消息要处理<因为Message可能是要在未来才需要处理>，就会将mBlock设置为true，并让线程进入空闲等待状态
+        * 如果needWake，就调用nativeWake()唤醒线程
 4. nativeWake
     * nativeMessageQueue->wake() ==> mLooper->wake()
     * Looper::wake()中，向Pipe中写入写入一个"W"，作为唤醒信号
