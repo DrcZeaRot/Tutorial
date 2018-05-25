@@ -11,7 +11,7 @@
     4. PathClassLoader只能加载dalvik虚拟机上已安装的apk的dex
     5. PathClassLoader可以加载art虚拟机上未安装的apk的dex（在art平台上已验证）
         > 然而在/data/dalvik-cache 确未找到相应的dex文件，怀疑是art虚拟机判断apk未安装，所以只是将apk优化后的odex放在内存中，之后进行释放，这只是个猜想，希望有知道的可以告知一下。
-* DexClassLoader
+* [DexClassLoader](../../../../Production/Android/Tricks/MultiDex/DexClassLoader.md)
     1. DexClassLoader可以加载dex文件以及包含dex的apk文件或jar文件，也支持从SD卡进行加载
     2. 在BaseDexClassLoader里对".jar",".zip",".apk",".dex"后缀的文件最后都会生成一个对应的dex文件,所以最终处理的还是dex文件,而URLClassLoader并没有做类似的处理。
     3. 它是热修复和插件化技术的基础
