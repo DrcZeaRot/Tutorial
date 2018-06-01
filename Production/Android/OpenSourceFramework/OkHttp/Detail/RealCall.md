@@ -43,7 +43,8 @@ private RealCall(OkHttpClient client, Request originalRequest, boolean forWebSoc
 2. 捕获当前请求的StackTrace，详见[StackTrace]()
 3. EventListener回调(3.10版本依旧是非稳定的API、默认是空实现)，并不关键
 4. Dispatcher::executed(final类，在OkHttpClient.Builder构造中创建，可以进行定制)
-    * 将当前Call保存在Dispatcher的成员队列中，在finally中通过finished再从队列中移除
+    * 将当前Call保存在Dispatcher的成员队列中，只是用于判断同步请求的并发量
+    * 在finally中通过finished再从队列中移除
 5. [getResponseWithInterceptorChain](../Interceptor/Interceptor.md)是通过拦截器，进行请求的具体过程，见下方详解
     * Response的创建、处理都在拦截器的proceed过程中完成
 6. catch block进行EventListener的回调通知。
@@ -84,7 +85,34 @@ private RealCall(OkHttpClient client, Request originalRequest, boolean forWebSoc
         1. 更改了最大请求数maxRequests
         2. 更改了单Host的最多接受请求数maxRequestsPerHost
         3. 上一个异步请求AsyncCall的execute的finally block中调用finished(AsyncCall call)方法，会跳转本方法
-3. NamedRunnable::run
+3. Dispatcher::promoteCalls
+    ```
+      private void promoteCalls() {
+        if (runningAsyncCalls.size() >= maxRequests) return; // Already running max capacity.
+        if (readyAsyncCalls.isEmpty()) return; // No ready calls to promote.
+
+        for (Iterator<AsyncCall> i = readyAsyncCalls.iterator(); i.hasNext(); ) {
+          AsyncCall call = i.next();
+
+          if (runningCallsForHost(call) < maxRequestsPerHost) {
+            i.remove();
+            runningAsyncCalls.add(call);
+            executorService().execute(call);
+          }
+
+          if (runningAsyncCalls.size() >= maxRequests) return; // Reached max capacity.
+        }
+      }
+    ```
+    1. 当前执行(running)的异步请求已经达到最大请求数：return
+    2. 并没有处于ready状态的异步请求：return
+    3. 遍历ready状态的异步请求
+        1.  同host请求数没有达到最大的话
+            1. 从ready容器中移除这个call
+            2. 添加call到running的容器中
+            3. Executor::execute，线程池执行请求，执行AsyncCall::run => AsyncCall::execute
+        2. 如果遍历中，running的请求再次达到最大：return
+4. NamedRunnable::run
     ```
       @Override public final void run() {
         String oldName = Thread.currentThread().getName();
@@ -98,7 +126,7 @@ private RealCall(OkHttpClient client, Request originalRequest, boolean forWebSoc
     ```
     * 先将当前Thread的Name改为当前NamedRunnable的name
     * execute方法执行之后，再改回原来的oldName
-4. AsyncCall
+5. AsyncCall
     ```
     AsyncCall(Callback responseCallback) {
       super("OkHttp %s", redactedUrl());//Thread的新Name来自这里

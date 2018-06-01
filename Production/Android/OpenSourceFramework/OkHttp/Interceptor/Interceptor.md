@@ -33,6 +33,22 @@ public interface Interceptor {
 }
 ```
 
+#### 关键拦截器：
+
+1. [RetryAndFollowUpInterceptor](RetryAndFollowUpInterceptor.md)
+1. [BridgeInterceptor]()
+    ```
+    将Java Api的code，转化为Http请求的code
+    比如：
+        1. 添加Http的关键header："Content-Type"、"Content-Length"、"Host"、"Connection"、
+            "Accept-Encoding"、"User-Agent"等
+        2. 添加cookie
+            默认没有Cokkie管理功能，需要在构建Client时添加。
+    ```
+1. [CacheInterceptor](CacheInterceptor.md)
+1. [ConnectInterceptor]()
+1. [CallServerInterceptor]()
+
 #### getResponseWithInterceptorChain
 Call::execute和Call::enqueue都会通过这个方法进行真实的请求：
 
@@ -69,6 +85,8 @@ Call::execute和Call::enqueue都会通过这个方法进行真实的请求：
 
 #### RealInterceptorChain
 
+[拦截器图解](../img/InterceptorExample.png)
+
 1. 构造方法
     ```
     public RealInterceptorChain(List<Interceptor> interceptors, StreamAllocation streamAllocation,
@@ -78,7 +96,7 @@ Call::execute和Call::enqueue都会通过这个方法进行真实的请求：
     }
     ```
     * 整体就是将入参保存到成员变量
-    1. index比较重要，通过这个交表来实现责任链效果
+    1. index比较重要，通过这个角标,递归实现责任链效果
 2. RealInterceptorChain::proceed
     ```
     public Response proceed(Request request, StreamAllocation streamAllocation, HttpCodec httpCodec,
@@ -128,6 +146,7 @@ Call::execute和Call::enqueue都会通过这个方法进行真实的请求：
     * 方法很长，但除了中间RealInterceptorChain next这种类似责任链的处理外，都是抛出各种异常
         * 只要某一个Interceptor的表现不符合规定，则抛出对应异常
         * 整体的请求过程也是通过try/catch/finally的处理，进行统一处理
+        * calls++保证每个chain只能被proceed一次
     1. 构建一个RealInterceptorChain next，index + 1保证执行后一个Interceptor
     2. 获取当前位置的Interceptor，用它对next进行intercept
     3. 在intercept方法中，next会调用RealInterceptorChain::proceed，会再次进入这个方法
