@@ -114,6 +114,16 @@
 
         return new Selection(routes);
       }
+
+      private Proxy nextProxy() throws IOException {
+        if (!hasNextProxy()) {
+          throw new SocketException("No route to " + address.url().host()
+              + "; exhausted proxy configurations: " + proxies);
+        }
+        Proxy result = proxies.get(nextProxyIndex++);
+        resetNextInetSocketAddress(result);
+        return result;
+      }
     ```
     1. hasNextProxy：调用nextProxy方法，会更新nextProxyIndex，影响hasNextProxy的结果
     2. postponedRoutes：

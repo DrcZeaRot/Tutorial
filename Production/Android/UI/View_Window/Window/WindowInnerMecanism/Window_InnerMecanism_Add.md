@@ -111,6 +111,19 @@ if (parentWindow != null) {
             }
         }
         ```
+    * 调用view.assignParent(this)，关联view的mParent(ViewRootImpl实现了ViewParent接口)
+          ```
+          void assignParent(ViewParent parent) {
+              if (mParent == null) {
+                  mParent = parent;
+              } else if (parent == null) {
+                  mParent = null;
+              } else {
+                  throw new RuntimeException("view " + this + " being added, but"
+                          + " it already has a parent");
+              }
+          }
+          ```
 * 再之后setView方法通过WindowSession，最终完成Window的添加过程
     * Window的添加过程，是一次IPC调用：
         ```

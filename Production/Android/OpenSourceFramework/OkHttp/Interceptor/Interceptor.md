@@ -46,8 +46,8 @@ public interface Interceptor {
             默认没有Cokkie管理功能，需要在构建Client时添加。
     ```
 1. [CacheInterceptor](CacheInterceptor.md)
-1. [ConnectInterceptor]()
-1. [CallServerInterceptor]()
+1. [ConnectInterceptor](ConnectInterceptor.md)
+1. [CallServerInterceptor](CallServerInterceptor.md)
 
 #### getResponseWithInterceptorChain
 Call::execute和Call::enqueue都会通过这个方法进行真实的请求：
