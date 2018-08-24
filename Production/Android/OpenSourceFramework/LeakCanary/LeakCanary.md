@@ -65,7 +65,7 @@
     ```
     * WeakReference与ReferenceQueue
         1. WeakReference的重载构造：public WeakReference(T referent, ReferenceQueue<? super T> q)
-        2. KeyedWeakReference将watchedReference引用与ReferenceQueue<Object> queue这个队列关联
+        2. KeyedWeakReference将watchedReference引用与ReferenceQueue< Object > queue这个队列关联
         3. 当系统准备回收目标Reference中的引用时，Queue会对当前Reference进行入队操作。Queue中的元素将是Reference<T>实例
     * retainedKeys是一个Set<String>，实际类型是CopyOnWriteArraySet
         1. 使用UUID对引用进行身份标记
